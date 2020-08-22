@@ -4,7 +4,7 @@
 
 * [生命周期](#生命周期)
 * [启动模式](#启动模式)
-* [数据传递](#数据传递)
+* [IntentFilter匹配规则](#IntentFilter匹配规则)
 
 ##### 生命周期
 
@@ -96,7 +96,24 @@ public void registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() 
 新的 Activity 实例，除非这个特殊的任务栈被销毁了，singleInstance 模式启动的 Activity 在整个系统中是单例的，如果在启动这样的 Activiyt 时，已经存在
 了一个实例，那么会把它所在的任务调度到前台，重用这个实例
 
-###### 数据传递
+###### IntentFilter 匹配规则
+
+IntentFilter 意图过滤器，我们可以通过它的匹配原则去打开我们想要打开的 Activity，例如我们想要打开手机浏览器，但是不知道用户安装了哪些浏览器，那么我们就
+通过 IntentFilter 来启动，让用户自己选择使用哪个浏览器，IntentFilter 可以在 AndroidManifest.xml 中注册 Activity 时通过 <intent-filter> 标签
+来设置 intentFilter，它有 3 个标签属性 action，category 和 data
+
+```xml
+<activity
+    android:launchMode="standard"
+    android:name=".MainActivity">
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+    </intent-filter>
+</activity>
+```
+
+**【Activity 调用模式】**
 
 - 显示启动
 
@@ -124,4 +141,122 @@ intent.addCategory(intent.CATEGORY_DEFAULT);
 startActivity(intent);
 ```
 
-- 数据回传
+**【Action 的匹配规则】**
+
+Intent 中的 action 必须能够和 Activity 过滤规则中的 Action 完全匹配（即完全相等）。一个过滤规则中有多个 action，那么只要 Intent 中的 action 能
+够和 Activity 过滤规则中的任何一个 action 相同即可匹配成功。简单的说就是 Intent 中的 action 必须出现在目标 Activity 的过滤规则中。
+
+```xml
+<!--SecondActivity的intent-filter-->
+<intent-filter>
+    <category android:name = "android.intent.category.DEFAULT" />
+    <action android:name="com.axe.mg.what" />
+</intent-filter>
+
+<!--ThirdActivity的intent-filter-->
+    <intent-filter>
+    <category android:name = "android.intent.category.DEFAULT" />
+    <action android:name="com.axe.mg.what" />
+    <action android:name="com.axe.mg.how"/>
+</intent-filter>
+
+<!--FourthActivity的intent-filter-->
+    <intent-filter>
+    <category android:name = "android.intent.category.DEFAULT" />
+    <action android:name="com.axe.mg.why" />
+    <action android:name="com.axe.mg.how"/>
+</intent-filter>
+```
+
+```java
+Intent intent = new Intent();
+intent.setAction("com.axe.mg.what");
+startActivity(intent);
+```
+
+![](https://github.com/Apriluestc/Android/blob/master/Images/10149931-8f7938c573d054e2.webp)
+
+这种启动方式既可以启动 SecondActivity，也可以启动 ThirdActivity，但是无法启动 FourthActivity，且必须至少含有一
+个 <category android:name = "android.intent.category.DEFAULT" /> 标签，否则系统会抛出 ActivityNotFoundException 的异常
+
+**【Category 的匹配规则】**
+
+一个 Intent 可以设置多个 category，且 Intent 中的所有 category 都必须匹配到 Activity 中，也可以不设置 category，这时系统会自动匹
+配 android.intent.category.DEFAULT，这里可能感觉和 action 很像，但是只要稍微注意一下就可以发现 Intent 是 setAction 和 addCategory，也
+就是说 action 只有一个（注意是一个 Intent 只有一个 action，但是一个 Activity 的 intent-filter 中可以有多个 action），而 category 可以有很多个
+且所有的 category 都必须出现在 Activity 的 category 集中
+
+```xml
+<!--SecondActivity的intent-filter-->
+<intent-filter>
+    <action android:name="com.axe.mg.what" />
+    <category android:name="com.yu.hu.category1"/>
+    <category android:name="com.yu.hu.category2"/>
+    <category android:name = "android.intent.category.DEFAULT" />
+</intent-filter>
+
+<!--ThirdActivity的intent-filter-->
+    <intent-filter>
+    <action android:name="com.axe.mg.what" />
+    <category android:name = "android.intent.category.DEFAULT" />
+    <category android:name="com.yu.hu.category1"/>
+    <category android:name="com.yu.hu.category2"/>
+    <category android:name="com.yu.hu.category3"/>
+</intent-filter>
+
+<!--FourthActivity的intent-filter-->
+<intent-filter>
+    <action android:name="com.axe.mg.what" />
+    <category android:name = "android.intent.category.DEFAULT" />
+    <category android:name="com.yu.hu.category2"/>
+</intent-filter>
+```
+
+```xml
+Intent intent = new Intent();
+intent.addCategory("com.yu.hu.category1");
+intent.addCategory("com.yu.hu.category2");
+intent.setAction("com.yu.hu.what");
+startActivity(intent);
+```
+
+![](https://github.com/Apriluestc/Android/blob/master/Images/10149931-8f7938c573d054e21.webp)
+
+此时依然只能匹配到前两个 Activity，因为 FourthActivity 没有 category1
+
+**【另外这里还有两点要注意：因为强制要求一个 Activity 需要一个 <category android:name="android.intent.category.DEFAULT"/>，所以我们不用
+将这个 categoty 添加到 intent 中去匹配，如果单独只 addCategory 是没有用的，必须 setAction 之后才行】**
+
+**【data 的匹配规则】**
+
+首先来说一下 data 的结构，data 由两部分组成：mineType 和 URI。mineType 指媒体类型，如.png .jpg等。而URI可配置更多信息：
+
+- scheme：URI 的模式，如 http，如果 URI 中没有指定 scheme，那么整个 URI 无效，默认为 content 和 file。
+- host：URI 的 host（域名、网址），如 www.baidu.com。如果指定了 scheme 和 port，path 等其他参数，但是 host 未指定，那么整个 URI 无效；如果
+只指定了 scheme，没有指定 host 和其他参数，URI 是有效的。
+- port：URI 端口，当 URI 指定了 scheme 和 host 参数时 port 参数才有意义。
+- path：用来匹配完整的路径，如：http://example.com/blog/abc.html，这里将 path 设置为 /blog/abc.html 才能够进行匹配；
+- pathPrefix：用来匹配路径的开头部分，拿上面的 URI 来说，这里将pathPrefix设置为 /blog 就能进行匹配了；
+- pathPattern：用表达式来匹配整个路径。
+
+【总的来说有点像是正则表达式，用于匹配指定字段内容】
+
+加入我们想匹配 www.baidu.com，那么
+
+```xml
+<intent-filter>
+    <action android:name="xx" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <data
+        android:host="www.baidu.com"
+        android:pathPrefix="/imgs"
+        android:port="8080"
+        android:scheme="https" />
+</intent-filter>
+```
+
+```java
+Intent intent = new Intent();
+intent.setData(Uri.parse("https://www.baidu.com:8080/imgs/img1.png"));
+startActivity(intent);
+```
