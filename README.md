@@ -5,7 +5,7 @@
 [![](https://img.shields.io/badge/lang-English-yellow)](https://github.com/Apriluestc/Android/blob/master/Lang/English.md)
 
 - [【编译打包】](https://github.com/Apriluestc/Android/tree/master/Docs/MainComponents)
-- [【主要相关】](https://github.com/Apriluestc/Android/tree/master/Docs/MainComponents)
+- [【主要相组件】](https://github.com/Apriluestc/Android/tree/master/Docs/MainComponents)
 - [【UI】](https://github.com/Apriluestc/Android/tree/master/Docs/MainComponents)
 - [【进程、线程、事件】](https://github.com/Apriluestc/Android/tree/master/Docs/MainComponents)
 - [【性能优化】](https://github.com/Apriluestc/Android/tree/master/Docs/MainComponents)
