@@ -4,7 +4,7 @@
 
 * [生命周期](#生命周期)
 * [启动模式](#启动模式)
-* [IntentFilter 匹配规则](#IntentFilter&匹配规则)
+* [IntentFilter 匹配规则](#IntentFilter-匹配规则)
 
 ##### 生命周期
 
