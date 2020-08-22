@@ -22,7 +22,7 @@ Activity 是一个应用组件，用户可与之交互，每个 Activity 都会�
 
 - 生命周期图解
 
-![](https://github.com/Apriluestc/Android/blob/master/Images/1673302-675030a52913d778.png)
+![](https://github.com/Apriluestc/Android/blob/master/Images/1673302-675030a52913d778_wps%E5%9B%BE%E7%89%87.png)
 
 - 方法详解
   - onCreate()：第一次创建 Activity 时，会调用这个方法一般会在这个方法初始化 UI 元素
