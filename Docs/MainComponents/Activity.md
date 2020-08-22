@@ -22,6 +22,8 @@ Activity 是一个应用组件，用户可与之交互，每个 Activity 都会�
 
 - 生命周期图解
 
+![](https://github.com/Apriluestc/Android/blob/master/Images/1673302-675030a52913d778.webp)
+
 ##### 启动模式
 
 - Standard 模式：Standard 模式时 Android 的默认启动模式，在这种模式下，Activity 可以有多个实例，每次
